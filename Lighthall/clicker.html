@@ -7,7 +7,7 @@
     <h1>Click Counter</h1>
     <button id="clickButton" onclick="incrementCount()">Click me!</button>
     <button id="resetButton" onclick="resetCount()">Reset</button>
-    <p>Number of clicks: <span id="clickCount">0</span></p>
+    <p>Number of clicks: <span id="localclickCount">0</span></p>
     <p><span id="region"></span></p>
     <table>
         <thead>
@@ -22,81 +22,12 @@
 
 
     <script>
-        let clickCount = localStorage.getItem("clickCount") || 0;
-        let countryClicks = JSON.parse(localStorage.getItem("countryClicks")) || {};
-        document.getElementById("clickCount").innerHTML = clickCount;
-        updateClickTable();
-
-        function incrementCount() {
-            clickCount++;
-            localStorage.setItem("clickCount", clickCount);
-            document.getElementById("clickCount").innerHTML = clickCount;
-            getLocation();
-            recordClickTime();
-        }
-
-        function resetCount() {
-            clickCount = 0;
-            localStorage.setItem("clickCount", clickCount);
-            document.getElementById("clickCount").innerHTML = clickCount;
-            updateClickTable();
-        }
-
-        // Function to get loacation
+        let localclickCount = localStorage.getItem("localclickCount") || 0;
+        document.getElementById("localclickCount").innerHTML = localclickCount;
         var x = document.getElementById("region");
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition);
-            } else { 
-                x.innerHTML = "Geolocation is not supported by this browser.";
-            }
-        }
-
-        function showPosition(position) {
-            x.innerHTML = "Latitude: " + position.coords.latitude + 
-            "<br>Longitude: " + position.coords.longitude;
-        }
-
-        
-        function recordClickTime() {
-            // Make an API request to get the user's country based on their IP address
-            fetch("https://ipapi.co/json/")
-                .then(response => response.json())
-                .then(data => {
-                    let country = data.country_name;
-                    if (country in countryClicks) {
-                        countryClicks[country]++;
-                    } else {
-                        countryClicks[country] = 1;
-                    }
-                    localStorage.setItem("countryClicks", JSON.stringify(countryClicks));
-                    updateClickTable();
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        }
-
-        function updateClickTable() {
-            // Clear the click table
-            let clickTableBody = document.getElementById("clickTableBody");
-            clickTableBody.innerHTML = "";
-
-            // Add a row for each country with its click count
-            for (let country in countryClicks) {
-                let clicks = countryClicks[country];
-                let tableRow = document.createElement("tr");
-                let countryCell = document.createElement("td");
-                let clicksCell = document.createElement("td");
-                let countryText = document.createTextNode(country);
-                let clicksText = document.createTextNode(clicks);
-                countryCell.appendChild(countryText);
-                clicksCell.appendChild(clicksText);
-                tableRow.appendChild(countryCell);
-                tableRow.appendChild(clicksCell);
-                clickTableBody.appendChild(tableRow);
-            }
-        }
     </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/7.14.1-0/firebase.js"></script>
+    <script src="./mail.js"></script>
 </body>
 </html>
