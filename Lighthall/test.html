@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Click Counter</title>
+</head>
+<body>
+    <h1>Click Counter</h1>
+    <button id="clickButton" onclick="incrementCount()">Click me!</button>
+    <button id="resetButton" onclick="resetCount()">Reset</button>
+    <p>Number of clicks: <span id="clickCount">0</span></p>
+    <p><span id="region"></span></p>
+    <table>
+        <thead>
+            <tr>
+                <th>Country</th>
+                <th>Click times</th>
+            </tr>
+        </thead>
+        <tbody id="clickTableBody">
+        </tbody>
+    </table>
+
+
+    <script>
+        let clickCount = localStorage.getItem("clickCount") || 0;
+        document.getElementById("clickCount").innerHTML = clickCount;
+        var x = document.getElementById("region");
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/7.14.1-0/firebase.js"></script>
+    <script src="./mail.js"></script>
+</body>
+</html>
