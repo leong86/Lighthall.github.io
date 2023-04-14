@@ -53,15 +53,17 @@ function recordClickTime() {
 
       // get the current click count from Firebase Realtime Database
       var clicksRef = firebase.database().ref('clicks');
-      clicksRef.child(country).child('clickCount').on('value', function(snapshot) {
-        let clickCount = snapshot.val();
+      clicksRef.child(country).child('clickCount').once('value', function(snapshot) {
+        const clickCount = snapshot.val();
         // save the updated click data to Firebase Realtime Database
+
         // var saveRef = firebase.database().ref('clicks');
-        // saveRef.child(country).set({
-        //   country: country,
-        //   clickCount: clickCount +1 ,
-        //   timestamp: new Date().getTime(),
-        // });
+        clicksRef.child(country).set({
+          country: country,
+          clickCount: clickCount +1 ,
+          timestamp: new Date().getTime(),
+        });
+      
 
         let tableRows = document.querySelectorAll("#clickTableBody tr");
         let rowFound = false;
@@ -69,7 +71,7 @@ function recordClickTime() {
         tableRows.forEach((row) => {
           if (row.cells[0].innerText === country) {
             // Update the click count for the existing row
-            row.cells[1].innerText = parseInt(row.cells[1].innerText) + 1;
+            row.cells[1].innerText = parseInt(row.cells[1].innerText);
             rowFound = true;
           }
         });
@@ -93,7 +95,7 @@ function recordClickTime() {
     });
 }
 
-
+// show the table
 function updateTable() {
   dbRef.child("clicks").on("value", function(snapshot) {
     let tableRows = document.querySelectorAll("#clickTableBody tr");
