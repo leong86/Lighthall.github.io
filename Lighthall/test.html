@@ -7,7 +7,7 @@
     <h1>Click Counter</h1>
     <button id="clickButton" onclick="incrementCount()">Click me!</button>
     <button id="resetButton" onclick="resetCount()">Reset</button>
-    <p>Number of clicks: <span id="clickCount">0</span></p>
+    <p>Number of clicks: <span id="localclickCount">0</span></p>
     <p><span id="region"></span></p>
     <table>
         <thead>
@@ -22,8 +22,8 @@
 
 
     <script>
-        let clickCount = localStorage.getItem("clickCount") || 0;
-        document.getElementById("clickCount").innerHTML = clickCount;
+        let localclickCount = localStorage.getItem("localclickCount") || 0;
+        document.getElementById("localclickCount").innerHTML = localclickCount;
         var x = document.getElementById("region");
     </script>
     

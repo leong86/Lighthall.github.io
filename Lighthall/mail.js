@@ -16,17 +16,18 @@ var dbRef = firebase.database().ref();
 
 // ---------------------------------------------------------------
   function incrementCount() {
-    clickCount++;
-    localStorage.setItem("clickCount", clickCount);
-    document.getElementById("clickCount").innerHTML = clickCount;
+    
+    localclickCount++;
+    localStorage.setItem("localclickCount", localclickCount);
+    document.getElementById("localclickCount").innerHTML = localclickCount;
     getLocation();
     recordClickTime();
 }
 
 function resetCount() {
-    clickCount = 0;
-    localStorage.setItem("clickCount", clickCount);
-    document.getElementById("clickCount").innerHTML = clickCount;
+  localclickCount = 0;
+  localStorage.setItem("localclickCount", localclickCount);
+  document.getElementById("localclickCount").innerHTML = localclickCount;
 }
 
 // Show your position 
@@ -49,40 +50,71 @@ function recordClickTime() {
     .then((response) => response.json())
     .then((data) => {
       let country = data.country_name;
-      let clickCount = parseInt(localStorage.getItem("clickCount")) || 0;
 
-      // save the click data to Firebase Realtime Database
-      dbRef.child("clicks").child(country).set({
-        country: country,
-        clickCount: clickCount + 1,
-        timestamp: new Date().getTime(),
-      });
+      // get the current click count from Firebase Realtime Database
+      var clicksRef = firebase.database().ref('clicks');
+      clicksRef.child(country).child('clickCount').on('value', function(snapshot) {
+        let clickCount = snapshot.val();
+        // save the updated click data to Firebase Realtime Database
+        // var saveRef = firebase.database().ref('clicks');
+        // saveRef.child(country).set({
+        //   country: country,
+        //   clickCount: clickCount +1 ,
+        //   timestamp: new Date().getTime(),
+        // });
 
-      let tableRows = document.querySelectorAll("#clickTableBody tr");
-      let rowFound = false;
-      // Loop through the existing rows to find the one for the user's country
-      tableRows.forEach((row) => {
-        if (row.cells[0].innerText === country) {
-          // Update the click count for the existing row
-          row.cells[1].innerText = parseInt(row.cells[1].innerText) + 1;
-          rowFound = true;
+        let tableRows = document.querySelectorAll("#clickTableBody tr");
+        let rowFound = false;
+        // Loop through the existing rows to find the one for the user's country
+        tableRows.forEach((row) => {
+          if (row.cells[0].innerText === country) {
+            // Update the click count for the existing row
+            row.cells[1].innerText = parseInt(row.cells[1].innerText) + 1;
+            rowFound = true;
+          }
+        });
+        // If a row for the country wasn't found, create a new one
+        if (!rowFound) {
+          let tableRow = document.createElement("tr");
+          let countryCell = document.createElement("td");
+          let clicksCell = document.createElement("td");
+          let countryText = document.createTextNode(country);
+          let clicksText = document.createTextNode("1");
+          countryCell.appendChild(countryText);
+          clicksCell.appendChild(clicksText);
+          tableRow.appendChild(countryCell);
+          tableRow.appendChild(clicksCell);
+          document.getElementById("clickTableBody").appendChild(tableRow);
         }
       });
-      // If a row for the country wasn't found, create a new one
-      if (!rowFound) {
-        let tableRow = document.createElement("tr");
-        let countryCell = document.createElement("td");
-        let clicksCell = document.createElement("td");
-        let countryText = document.createTextNode(country);
-        let clicksText = document.createTextNode("1");
-        countryCell.appendChild(countryText);
-        clicksCell.appendChild(clicksText);
-        tableRow.appendChild(countryCell);
-        tableRow.appendChild(clicksCell);
-        document.getElementById("clickTableBody").appendChild(tableRow);
-      }
     })
     .catch((error) => {
       console.error(error);
     });
 }
+
+
+function updateTable() {
+  dbRef.child("clicks").on("value", function(snapshot) {
+    let tableRows = document.querySelectorAll("#clickTableBody tr");
+    tableRows.forEach(function(row) {
+      row.remove();
+    });
+    snapshot.forEach(function(childSnapshot) {
+      let childData = childSnapshot.val();
+      let tableRow = document.createElement("tr");
+      let countryCell = document.createElement("td");
+      let clicksCell = document.createElement("td");
+      let countryText = document.createTextNode(childData.country);
+      let clicksText = document.createTextNode(childData.clickCount);
+      countryCell.appendChild(countryText);
+      clicksCell.appendChild(clicksText);
+      tableRow.appendChild(countryCell);
+      tableRow.appendChild(clicksCell);
+      document.getElementById("clickTableBody").appendChild(tableRow);
+    });
+  });
+}
+
+// Call updateTable() when the page is loaded
+window.onload = updateTable;
